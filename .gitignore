@@ -9,3 +9,4 @@ coverage
 .env.development.local
 pnpm-lock.yaml
 output
+tsconfig.tsbuildinfo

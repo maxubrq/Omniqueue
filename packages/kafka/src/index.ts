@@ -2,20 +2,21 @@
  * OmniQueue – Kafka adapter (node-rdkafka, Core vNext)
  * ==================================================================== */
 import {
-    Broker,
-    BrokerMessage,
-    ConsumeOptions,
-    register,
-    SendOptions,
+   Broker,
+   BrokerMessage,
+   ConsumeOptions,
+   register,
+   SendOptions,
 } from '@omniqueue/core';
 import Kafka, {
-    IAdminClient,
-    KafkaConsumer,
-    Message,
-    MessageHeader,
-    Producer,
+   IAdminClient,
+   KafkaConsumer,
+   Message,
+   MessageHeader,
+   Producer,
 } from 'node-rdkafka';
 import { ulid } from 'ulid';
+import { DEFAULT_NUM_TOPIC, DEFAULT_REPLICATION_FACTOR } from './constant';
 
 /* ─────────────── user-supplied connection & defaults ─────────────── */
 export interface KafkaConfig {
@@ -90,11 +91,11 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
                num_partitions:
                   opts?.numPartitions ??
                   this.cfg.defaultTopic?.numPartitions ??
-                  1,
+                  DEFAULT_NUM_TOPIC,
                replication_factor:
                   opts?.replicationFactor ??
                   this.cfg.defaultTopic?.replicationFactor ??
-                  1,
+                  DEFAULT_REPLICATION_FACTOR,
                config:
                   opts?.configEntries ?? this.cfg.defaultTopic?.configEntries,
             },
@@ -126,7 +127,7 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
             msg.id, // key → stick to same partition on retries
             Date.now(),
             undefined,
-            opts.headers??[]
+            opts.headers ?? [],
          );
       });
    }

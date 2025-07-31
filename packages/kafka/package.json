@@ -1,15 +1,16 @@
 {
   "name": "@omniqueue/kafka",
-  "version": "0.1.0",
+  "version": "0.16.0",
   "description": "One API – Every Queue (kafka)",
   "license": "MIT",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "type": "module",
+  "main": "./dist/index.es.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.es.js",
       "types": "./dist/index.d.ts"
     }
   },
@@ -20,7 +21,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build",
+    "build": "tsc && vite build",
     "typecheck": "tsc -b",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src/**/*.ts",

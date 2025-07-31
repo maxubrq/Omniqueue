@@ -6,7 +6,8 @@ export default defineConfig({
         lib: {
             entry: "src/index.ts",
             name: "OmniQueueCore",
-            formats: ["es", "cjs"]
+            formats: ["es", "cjs", "umd"],
+            fileName: (format) => `index.${format}.js`
         },
         outDir: "dist",
         emptyOutDir: true,

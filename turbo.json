@@ -1,9 +1,22 @@
 {
     "$schema": "https://turborepo.com/schema.json",
     "tasks": {
+        "test": {
+            "outputs": [
+                "{options.testCacheDir}/**"
+            ],
+            "cache": true,
+            "dependsOn": [
+                "^lint",
+                "^test"
+            ]
+        },
         "build": {
             "outputs": [
                 "dist/**"
+            ],
+            "dependsOn": [
+                "^build"
             ]
         },
         "check-types": {

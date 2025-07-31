@@ -4,9 +4,10 @@ import dts from "vite-plugin-dts";
 export default defineConfig({
     build: {
         lib: {
-            entry: "src/index.ts",
+            entry: "./src/index.ts",
             name: "OmniQueueRabbitMQ",
-            formats: ["es", "cjs"]
+            formats: ["es", "cjs", "umd"],
+            fileName: (format) => `index.${format}.js`
         },
         outDir: "dist",
         emptyOutDir: true,

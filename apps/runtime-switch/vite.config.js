@@ -5,7 +5,7 @@ export default defineConfig({
     build: {
         lib: {
             entry: "./src/index.ts",
-            name: "OmniQueueKafka",
+            name: "OmniQueueKafka-RuntimeSwitch",
             formats: ["es", "cjs"],
             fileName: (format) => `index.${format}.js`
         },
@@ -14,8 +14,12 @@ export default defineConfig({
         target: "es2022",
         rollupOptions: {
             external: [
-                "node-rdkafka",
                 "@omniqueue/core",
+                "@omniqueue/kafka",
+                "@omniqueue/rabbitmq",
+                "amqplib",
+                "kafkajs",
+                "@types/amqplib",
                 "./vite.config.js",
                 './vitest.config.ts',
             ],

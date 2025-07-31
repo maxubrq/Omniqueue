@@ -7,4 +7,14 @@
     "declarationMap": true,
     "emitDeclarationOnly": true
   },
+  "exclude": [
+    "dist",
+    "node_modules",
+    "src/__tests__",
+    "src/__mocks__",
+    "src/__fixtures__",
+    "vite.config.ts",
+    "vite.config.js",
+    "vitest.config.ts"
+  ],
 }
