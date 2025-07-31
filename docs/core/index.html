@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniQueue Core - One API, Every Queue</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/shiki@0.14.7/dist/index.browser.mjs" type="module"></script>
+    <style>
+        :root {
+            --omni-dark: #1a1a2e;
+            --omni-darker: #16213e;
+            --omni-yellow: #ffd700;
+            --omni-orange: #e74c3c;
+            --omni-red: #d63031;
+            --omni-light: #f8f9fa;
+            --omni-green: #2ecc71;
+            --omni-blue: #74b9ff;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--omni-dark) 0%, var(--omni-darker) 100%);
+            color: var(--omni-light);
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 0;
+            position: relative;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .core-logo {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 2rem;
+            border-radius: 20px;
+            overflow: hidden;
+            animation: logoFloat 4s ease-in-out infinite;
+            box-shadow: 0 10px 30px rgba(214, 48, 49, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .core-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(214, 48, 49, 0.5);
+        }
+
+        .core-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--omni-yellow);
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 10px var(--omni-yellow); }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 20px var(--omni-yellow), 0 0 30px var(--omni-yellow); }
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            color: var(--omni-yellow);
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        .nav-breadcrumb {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(214, 48, 49, 0.1));
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--omni-yellow);
+            border-right: 4px solid var(--omni-red);
+        }
+
+        .nav-breadcrumb a {
+            color: var(--omni-yellow);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .nav-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .section {
+            margin: 3rem 0;
+            padding: 2rem 0;
+        }
+
+        .section h2 {
+            color: var(--omni-yellow);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        .problem-solution-table {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .problem-solution-table table {
+            margin: 0;
+        }
+
+        .problem-solution-table th {
+            background: linear-gradient(135deg, var(--omni-yellow), var(--omni-orange));
+            color: var(--omni-dark);
+            font-weight: bold;
+            padding: 1rem;
+        }
+
+        .problem-solution-table td {
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 1rem;
+            vertical-align: top;
+        }
+
+        .problem-solution-table td:first-child {
+            background: rgba(214, 48, 49, 0.1);
+            border-right: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .problem-solution-table td:last-child {
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        /* Mermaid Diagram Styling */
+        .mermaid-container {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--omni-orange);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .mermaid-container::before {
+            content: '🏗️ Architecture';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--omni-dark);
+            color: var(--omni-orange);
+            padding: 0 10px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Shiki Code Block Styling */
+        .shiki-container {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--omni-yellow);
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .shiki-header {
+            background: linear-gradient(135deg, var(--omni-yellow), var(--omni-orange));
+            color: var(--omni-dark);
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shiki-content {
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .shiki-bash .shiki-header::before {
+            content: '$ ';
+            color: var(--omni-green);
+            font-weight: bold;
+        }
+
+        .api-section {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(214, 48, 49, 0.05));
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .interface-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--omni-green);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .magic-decorators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .magic-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(214, 48, 49, 0.1));
+            border: 2px solid var(--omni-yellow);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .magic-card::before {
+            content: '✨';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5rem;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        .magic-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .magic-card:hover::after {
+            animation: shine 0.5s ease-in-out;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+            50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+        }
+
+        .magic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.2);
+            border-color: var(--omni-orange);
+        }
+
+        .magic-card h4 {
+            color: var(--omni-yellow);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .roadmap-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .roadmap-list li {
+            background: rgba(0, 0, 0, 0.2);
+            margin: 0.5rem 0;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid var(--omni-orange);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .roadmap-list li:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-left-color: var(--omni-yellow);
+            transform: translateX(5px);
+        }
+
+        .roadmap-list li.completed {
+            border-left-color: var(--omni-green);
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .roadmap-list li.completed::before {
+            content: '✅ ';
+        }
+
+        .roadmap-list li:not(.completed)::before {
+            content: '🔲 ';
+        }
+
+        .highlight {
+            color: var(--omni-yellow);
+            font-weight: bold;
+        }
+
+        .back-to-home {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, var(--omni-yellow), var(--omni-orange));
+            color: var(--omni-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .back-to-home:hover {
+            background: linear-gradient(135deg, var(--omni-orange), var(--omni-red));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(214, 48, 49, 0.4);
+        }
+
+        .geometric-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+        }
+
+        .cube {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: var(--omni-orange);
+            animation: float 15s linear infinite;
+        }
+
+        .cube:nth-child(1) { top: 15%; left: 5%; animation-delay: 0s; }
+        .cube:nth-child(2) { top: 25%; right: 10%; animation-delay: 3s; }
+        .cube:nth-child(3) { bottom: 35%; left: 15%; animation-delay: 6s; }
+        .cube:nth-child(4) { bottom: 15%; right: 5%; animation-delay: 9s; }
+        .cube:nth-child(5) { top: 50%; left: 50%; animation-delay: 12s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(90deg); }
+            50% { transform: translateY(0px) rotate(180deg); }
+            75% { transform: translateY(-10px) rotate(270deg); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255, 215, 0, 0.3);
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .tagline { font-size: 1.1rem; }
+            .magic-decorators { grid-template-columns: 1fr; }
+            .back-to-home { position: static; margin-bottom: 1rem; display: inline-block; }
+            .core-logo { width: 150px; height: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="geometric-bg">
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+    </div>
+
+    <a href="omniqueue-landing.html" class="back-to-home">← Back to Home</a>
+
+    <main class="container">
+        <header class="header">
+            <div class="core-logo">
+                <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/omniqueue_core_logo-S6qdNtH4INkcY8YQO2rIWvoSRrVabN.png" alt="OmniQueue Core Logo">
+            </div>
+            <h1>OmniQueue Core</h1>
+            <p class="tagline">One API – Every Queue</p>
+            <p class="subtitle">
+                Minimal contracts & runtime for dynamically switching between multiple message brokers 
+                (RabbitMQ, Kafka, AWS SQS, Azure Service Bus, NATS JetStream, BullMQ, ZeroMQ, …).
+            </p>
+        </header>
+
+        <div class="nav-breadcrumb">
+            <strong>💡 Key Insight:</strong> The core is 100% dependency‑free TypeScript. Adapters self‑register at import‑time; you choose the provider at runtime.
+        </div>
+
+        <section class="section">
+            <h2>✨ Why OmniQueue?</h2>
+            <div class="problem-solution-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Problem</th>
+                            <th>OmniQueue Core Solution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Codebase tightly coupled to one broker</td>
+                            <td>Standardised <strong>Broker</strong> and <strong>BrokerMessage</strong> interfaces decouple application logic from provider APIs.</td>
+                        </tr>
+                        <tr>
+                            <td>Hard to swap or test alternative brokers</td>
+                            <td><strong>Runtime factory</strong> (<code>create(provider,cfg)</code>) chooses the implementation dynamically.</td>
+                        </tr>
+                        <tr>
+                            <td>Adapter zoo, each with its own API surface</td>
+                            <td><strong>Plugin registry</strong> (<code>register()</code>) lets each adapter expose itself under a single ergonomic API.</td>
+                        </tr>
+                        <tr>
+                            <td>Missing common guarantees (ack/nack, DLQ, priority…)</td>
+                            <td>Spec enforces explicit <strong>ack/nack</strong>, retry/DLQ hooks, priority & delay semantics. Magic decorators add wow‑features.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>🏗️ Architecture (Core only)</h2>
+            <div class="mermaid-container">
+                <div class="mermaid">
+                    graph LR
+                        A["@omniqueue/core<br/>• BrokerMessage<br/>• Broker<br/>• register()<br/>• create()"] 
+                        B["@omniqueue/rabbitmq<br/>(adapter package)"]
+                        C["Concrete Broker<br/>Instance"]
+                        
+                        B -->|"side-effect import<br/>register('rabbitmq', factory)"| A
+                        A -->|"create(provider, config)"| C
+                        
+                        style A fill:#1a1a2e,stroke:#ffd700,stroke-width:2px,color:#f8f9fa
+                        style B fill:#e74c3c,stroke:#ffd700,stroke-width:2px,color:#f8f9fa
+                        style C fill:#2ecc71,stroke:#ffd700,stroke-width:2px,color:#f8f9fa
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>🚀 Quick Start</h2>
+            <div class="shiki-container">
+                <div class="shiki-header shiki-bash">
+                    <span>Installation</span>
+                    <span>bash</span>
+                </div>
+                <div class="shiki-content" id="install-code">
+                    <!-- Shiki will populate this -->
+                </div>
+            </div>
+            
+            <div class="shiki-container">
+                <div class="shiki-header">
+                    <span>Usage Example</span>
+                    <span>TypeScript</span>
+                </div>
+                <div class="shiki-content" id="usage-code">
+                    <!-- Shiki will populate this -->
+                </div>
+            </div>
+        </section>
+
+        <section class="section api-section">
+            <h2>📝 Core API</h2>
+            
+            <div class="interface-block">
+                <h3>BrokerMessage Interface</h3>
+                <div class="shiki-container">
+                    <div class="shiki-header">
+                        <span>BrokerMessage</span>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="shiki-content" id="broker-message-code">
+                        <!-- Shiki will populate this -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="interface-block">
+                <h3>Broker Interface</h3>
+                <div class="shiki-container">
+                    <div class="shiki-header">
+                        <span>Broker</span>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="shiki-content" id="broker-code">
+                        <!-- Shiki will populate this -->
+                    </div>
+                </div>
+            </div>
+
+            <p><strong>✅ No external deps. Strict TS, ES2022 output, d.ts bundled via Vite.</strong></p>
+        </section>
+
+        <section class="section">
+            <h2>🔌 Writing an Adapter</h2>
+            <div class="shiki-container">
+                <div class="shiki-header">
+                    <span>Adapter Implementation</span>
+                    <span>TypeScript</span>
+                </div>
+                <div class="shiki-content" id="adapter-code">
+                    <!-- Shiki will populate this -->
+                </div>
+            </div>
+            <p><em>Publish the adapter as <code>@omniqueue/rabbitmq</code> with <code>peerDependency</code> on <code>@omniqueue/core</code>.</em></p>
+        </section>
+
+        <section class="section">
+            <h2>🪄 Magic Decorators (roadmap)</h2>
+            <div class="magic-decorators">
+                <div class="magic-card">
+                    <h4>later()</h4>
+                    <p>Delay / schedule message delivery across any broker</p>
+                </div>
+                <div class="magic-card">
+                    <h4>tracing()</h4>
+                    <p>Automatic W3C TraceContext via OpenTelemetry</p>
+                </div>
+                <div class="magic-card">
+                    <h4>idempotent()</h4>
+                    <p>Redis/SQLite key guard (<code>idem:&lt;queue&gt;:&lt;id&gt;</code>)</p>
+                </div>
+                <div class="magic-card">
+                    <h4>priority()</h4>
+                    <p>Dedicated‑lane consumers with priority handling</p>
+                </div>
+                <div class="magic-card">
+                    <h4>zeroDrop()</h4>
+                    <p>Outbox + tx ACK channel for exactly-once delivery</p>
+                </div>
+            </div>
+            <p><strong>Key insight:</strong> Adapters only need to expose primitives; decorators compose cross‑provider features.</p>
+        </section>
+
+        <section class="section">
+            <h2>🛣️ Roadmap</h2>
+            <ul class="roadmap-list">
+                <li class="completed">Core contracts & registry</li>
+                <li>RabbitMQ adapter (baseline)</li>
+                <li>Kafka (kafkajs) adapter</li>
+                <li>SQS / FIFO adapter</li>
+                <li>Magic‑later decorator</li>
+                <li>TypeDoc PicoCSS theme (<code>typedoc-omniqueue-theme</code>)</li>
+            </ul>
+            <p>See <code>docs/roadmap.md</code> for full tracker.</p>
+        </section>
+
+        <section class="section">
+            <h2>🤝 Contributing</h2>
+            <p>Pull requests welcome! Run the full pipeline:</p>
+            <div class="shiki-container">
+                <div class="shiki-header shiki-bash">
+                    <span>Development Setup</span>
+                    <span>bash</span>
+                </div>
+                <div class="shiki-content" id="contributing-code">
+                    <!-- Shiki will populate this -->
+                </div>
+            </div>
+            <p>Please follow the Conventional Commits spec; Changesets handles semver.</p>
+        </section>
+
+        <section class="section">
+            <h2>🏷️ License</h2>
+            <p><a href="#" class="highlight">MIT</a></p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 OmniQueue Core. Minimal contracts & runtime for message brokers.</p>
+    </footer>
+
+    <script type="module">
+        // Initialize Mermaid with custom theme
+        mermaid.initialize({
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#ffd700',
+                primaryTextColor: '#f8f9fa',
+                primaryBorderColor: '#e74c3c',
+                lineColor: '#ffd700',
+                secondaryColor: '#1a1a2e',
+                tertiaryColor: '#16213e',
+                background: '#1a1a2e',
+                mainBkg: '#1a1a2e',
+                secondBkg: '#16213e',
+                tertiaryBkg: '#e74c3c'
+            },
+            flowchart: {
+                nodeSpacing: 50,
+                rankSpacing: 80,
+                curve: 'basis'
+            }
+        });
+
+        // Initialize Shiki for syntax highlighting
+        import { getHighlighter } from 'https://cdn.jsdelivr.net/npm/shiki@0.14.7/dist/index.browser.mjs';
+
+        const highlighter = await getHighlighter({
+            themes: ['dark-plus'],
+            langs: ['typescript', 'bash']
+        });
+
+        // Code snippets
+        const codeSnippets = {
+            install: `yarn add @omniqueue/core @omniqueue/rabbitmq @omniqueue/kafka  # adapters are peer‑dep`,
+            
+            usage: `import "@omniqueue/rabbitmq";   // auto‑registers provider "rabbitmq"
+import "@omniqueue/kafka";
+import { create } from "@omniqueue/core";
+
+const provider = process.env.MQ_PROVIDER ?? "rabbitmq";
+const cfg = provider === "kafka"
+  ? { brokers: ["localhost:9092"] }
+  : { url: "amqp://localhost" };
+
+const mq = await create(provider, cfg);
+
+await mq.send("tasks", { 
+  id: "1", 
+  body: { hello: provider }, 
+  headers: {} 
+});
+
+await mq.receive("tasks", async msg => {
+  console.log(msg.body);
+  await msg.ack();
+});`,
+
+            brokerMessage: `export interface BrokerMessage<T = any> {
+  id: string;      // ULID / UUID v7
+  body: T;
+  headers: Record<string, any>;
+  ack(): Promise<void>;
+  nack(requeue?: boolean): Promise<void>;
+}`,
+
+            broker: `export interface Broker {
+  readonly provider: string;
+  
+  send(queue: string, msg: Omit<BrokerMessage, "ack"|"nack">, opts?: { prio?: number }): Promise<void>;
+  receive(queue: string, handler: (m: BrokerMessage) => Promise<void>, opts?: { prio?: number }): Promise<void>;
+  
+  publish(topic: string, msg: Omit<BrokerMessage, "ack"|"nack">, opts?: { prio?: number }): Promise<void>;
+  subscribe(topic: string, handler: (m: BrokerMessage) => Promise<void>, opts?: { prio?: number }): Promise<void>;
+  
+  close(): Promise<void>;
+}`,
+
+            adapter: `import { Broker, BrokerMessage, register } from "@omniqueue/core";
+import { connect } from "amqplib"; // example: RabbitMQ driver
+
+class RabbitBroker implements Broker {
+  readonly provider = "rabbitmq";
+  /* …implementation… */
+}
+
+register("rabbitmq", async cfg => new RabbitBroker(cfg));`,
+
+            contributing: `yarn install
+pnpm turbo run build`
+        };
+
+        // Apply syntax highlighting
+        document.getElementById('install-code').innerHTML = highlighter.codeToHtml(codeSnippets.install, { lang: 'bash', theme: 'dark-plus' });
+        document.getElementById('usage-code').innerHTML = highlighter.codeToHtml(codeSnippets.usage, { lang: 'typescript', theme: 'dark-plus' });
+        document.getElementById('broker-message-code').innerHTML = highlighter.codeToHtml(codeSnippets.brokerMessage, { lang: 'typescript', theme: 'dark-plus' });
+        document.getElementById('broker-code').innerHTML = highlighter.codeToHtml(codeSnippets.broker, { lang: 'typescript', theme: 'dark-plus' });
+        document.getElementById('adapter-code').innerHTML = highlighter.codeToHtml(codeSnippets.adapter, { lang: 'typescript', theme: 'dark-plus' });
+        document.getElementById('contributing-code').innerHTML = highlighter.codeToHtml(codeSnippets.contributing, { lang: 'bash', theme: 'dark-plus' });
+
+        // Animation and interaction setup
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate sections on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'slideInUp 0.6s ease-out forwards';
+                    }
+                });
+            }, observerOptions);
+
+            // Animate magic cards
+            document.querySelectorAll('.magic-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                observer.observe(card);
+            });
+
+            // Animate roadmap items
+            document.querySelectorAll('.roadmap-list li').forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-30px)';
+                setTimeout(() => {
+                    item.style.animation = 'slideInLeft 0.5s ease-out forwards';
+                }, index * 100);
+            });
+
+            // Add slideIn animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInUp {
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                @keyframes slideInLeft {
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Interactive table rows
+            document.querySelectorAll('.problem-solution-table tr').forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.background = 'rgba(255, 215, 0, 0.1)';
+                });
+                row.addEventListener('mouseleave', function() {
+                    this.style.background = '';
+                });
+            });
+
+            // Code block hover effects
+            document.querySelectorAll('.shiki-container').forEach(container => {
+                container.addEventListener('mouseenter', function() {
+                    this.style.borderColor = 'var(--omni-orange)';
+                    this.style.transform = 'translateY(-2px)';
+                });
+                container.addEventListener('mouseleave', function() {
+                    this.style.borderColor = 'var(--omni-yellow)';
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
