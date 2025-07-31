@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniQueue - One API, Every Queue</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        :root {
+            --omni-dark: #1a1a2e;
+            --omni-darker: #16213e;
+            --omni-yellow: #ffd700;
+            --omni-orange: #e74c3c;
+            --omni-light: #f8f9fa;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--omni-dark) 0%, var(--omni-darker) 100%);
+            color: var(--omni-light);
+            font-family: 'Courier New', monospace;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo {
+            width: 200px;
+            height: auto;
+            margin: 0 auto 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: var(--omni-yellow);
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 10px var(--omni-yellow);
+            }
+
+            to {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 20px var(--omni-yellow), 0 0 30px var(--omni-yellow);
+            }
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: var(--omni-yellow);
+            margin-bottom: 2rem;
+            font-weight: bold;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid var(--omni-yellow);
+            border-radius: 8px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .feature-card:hover::before {
+            animation: shine 0.5s ease-in-out;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.2);
+        }
+
+        .feature-card h3 {
+            color: var(--omni-yellow);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--omni-orange);
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: '$ ';
+            color: var(--omni-yellow);
+            font-weight: bold;
+        }
+
+        .install-section {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--omni-orange);
+            padding: 2rem;
+            margin: 3rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .adapters-table {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .adapters-table table {
+            margin: 0;
+        }
+
+        .adapters-table th {
+            background: var(--omni-yellow);
+            color: var(--omni-dark);
+            font-weight: bold;
+        }
+
+        .adapters-table td {
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(45deg, rgba(255, 215, 0, 0.1), rgba(231, 76, 60, 0.1));
+            border-radius: 12px;
+            margin: 3rem 0;
+        }
+
+        .btn-primary {
+            background: var(--omni-yellow);
+            color: var(--omni-dark);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background: var(--omni-orange);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .geometric-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .cube {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: var(--omni-orange);
+            animation: rotate 10s linear infinite;
+        }
+
+        .cube:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .cube:nth-child(2) {
+            top: 20%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .cube:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .cube:nth-child(4) {
+            bottom: 10%;
+            right: 10%;
+            animation-delay: 6s;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(180deg) scale(1.2);
+            }
+
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
+        }
+
+        .highlight {
+            color: var(--omni-yellow);
+            font-weight: bold;
+        }
+
+        .magic-badge {
+            background: linear-gradient(45deg, var(--omni-yellow), var(--omni-orange));
+            color: var(--omni-dark);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            margin: 0.2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255, 215, 0, 0.3);
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 1.2rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="geometric-bg">
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+        <div class="cube"></div>
+    </div>
+
+    <main class="container">
+        <section class="hero">
+            <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/omniqueue_logo-WbK5587DQkeCtDqA87N4e1GrZDnOU2.png"
+                alt="OmniQueue Logo" class="logo">
+            <h1>OmniQueue</h1>
+            <p class="tagline">One API – every queue.</p>
+            <p class="description">
+                Ship messages through <span class="highlight">RabbitMQ</span>, <span class="highlight">AWS SQS</span>,
+                <span class="highlight">Azure Service Bus</span>, <span class="highlight">ActiveMQ</span>,
+                <span class="highlight">Kafka</span>, and <span class="highlight">NATS / JetStream</span>
+                without changing a line of business code.
+            </p>
+            <div>
+                <span class="magic-badge">✨ Magic Add-ons</span>
+                <span class="magic-badge">🔄 Delays</span>
+                <span class="magic-badge">⏰ DLQ Time-travel</span>
+                <span class="magic-badge">🔍 Tracing</span>
+                <span class="magic-badge">🛡️ Idempotency</span>
+            </div>
+        </section>
+
+        <section class="install-section">
+            <h2>🛠️ Quick Install</h2>
+            <div class="code-block">npm i @omniqueue/core @omniqueue/rabbitmq amqplib</div>
+            <div class="code-block">npm i @omniqueue/core @omniqueue/kafka @omniqueue/kafka-kafkajs kafkajs</div>
+            <div class="code-block">npm i @omniqueue/core @omniqueue/nats @omniqueue/nats-natsjs nats</div>
+            <p><em>Adapters use peer dependencies—install only what you need, nothing else is downloaded or
+                    bundled.</em></p>
+        </section>
+
+        <section class="feature-grid">
+            <div class="feature-card">
+                <h3>🔹 Unified Interface</h3>
+                <p>Single <code>Broker</code> interface with <code>send</code>, <code>receive</code>, explicit
+                    <code>ack()/nack()</code></p>
+                <p>Queue autoprovisioning (streams / topics / queues)</p>
+                <p>Type-safe payloads, pluggable serializers</p>
+                <p>Tiny core (&lt;10 kB)</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>✨ Magic Add-ons</h3>
+                <p><code>later()</code> – cross-broker delayed messages</p>
+                <p>Time-travel DLQ replay</p>
+                <p>OpenTelemetry auto-trace</p>
+                <p>Idempotent consumer decorator</p>
+                <p>Zero-Drop outbox for exactly-once publish</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>🚀 Quick Start</h3>
+                <div class="code-block" style="font-size: 0.8rem; text-align: left;">
+                    import { create } from "@omniqueue/core";<br>
+                    import "@omniqueue/rabbitmq";<br><br>
+                    const mq = await create("rabbitmq", { url: "amqp://localhost" });<br>
+                    await mq.send("tasks", { body: { id: 1 } });<br>
+                    await mq.receive("tasks", async msg => {<br>
+                    &nbsp;&nbsp;console.log("got", msg.body);<br>
+                    &nbsp;&nbsp;await msg.ack();<br>
+                    });
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>📦 Supported Adapters</h2>
+            <div class="adapters-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Package</th>
+                            <th>Broker</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>@omniqueue/rabbitmq</code></td>
+                            <td>RabbitMQ</td>
+                            <td>needs <code>amqplib</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>@omniqueue/sqs</code></td>
+                            <td>AWS SQS (Standard + FIFO)</td>
+                            <td>modular AWS SDK v3</td>
+                        </tr>
+                        <tr>
+                            <td><code>@omniqueue/azuresb</code></td>
+                            <td>Azure Service Bus</td>
+                            <td>queues, topics, sessions</td>
+                        </tr>
+                        <tr>
+                            <td><code>@omniqueue/activemq</code></td>
+                            <td>ActiveMQ (Artemis / Classic)</td>
+                            <td>STOMP</td>
+                        </tr>
+                        <tr>
+                            <td><code>@omniqueue/kafka</code> + driver</td>
+                            <td>Kafka</td>
+                            <td>pick <code>kafka-kafkajs</code> <strong>or</strong> <code>kafka-rdkafka</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>@omniqueue/nats</code> + driver</td>
+                            <td>NATS / JetStream</td>
+                            <td>pick <code>nats-natsjs</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <h2>🗺️ Coming Soon</h2>
+            <p>CLI tools, gRPC/HTTP code-gen stubs, delay-topic poller containers, and Grafana dashboard plugins</p>
+            <div>
+                <a href="#" class="btn-primary">📚 Documentation</a>
+                <a href="#" class="btn-primary">🐙 GitHub</a>
+                <a href="#" class="btn-primary">📦 NPM</a>
+            </div>
+        </section>
+
+        <section>
+            <h2>🤝 Contributing</h2>
+            <ol>
+                <li>Fork → <code>pnpm i</code> → <code>pnpm -r build</code></li>
+                <li>Add tests (<code>pnpm test</code>) – Docker compose spins local RabbitMQ, LocalStack, etc.</li>
+                <li>Submit PR. All adapters follow the same driver interface; lint passes = merge.</li>
+            </ol>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 OmniQueue Project. One API – every queue.</p>
+    </footer>
+
+    <script>
+        // Add some interactive animations
+        document.addEventListener('DOMContentLoaded', function () {
+            // Animate feature cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function (entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'slideInUp 0.6s ease-out forwards';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.feature-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                observer.observe(card);
+            });
+
+            // Add slideInUp animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInUp {
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Add click animation to buttons
+            document.querySelectorAll('.btn-primary').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-2px)';
+                    }, 100);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
