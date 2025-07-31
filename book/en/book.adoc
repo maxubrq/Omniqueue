@@ -1,0 +1,14 @@
+= OmniQueue: Unified Messaging Architecture
+Hung Tran (maxubrq) <hungtp.play@gmail.com>
+:doctype: book
+:toc: left
+:toclevels: 3
+:icons: font
+:source-highlighter: rouge
+:sectnums:
+:chapter-label:
+:imagesdir: images
+
+include::chapters/01-intro.adoc[]
+include::chapters/02-architecture.adoc[]
+include::chapters/03-api.adoc[]

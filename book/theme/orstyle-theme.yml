@@ -1,0 +1,85 @@
+extends: default
+
+# font:
+#   catalog:
+#     NotoSerif:
+#       normal: NotoSerif-Regular.ttf
+#       bold: NotoSerif-Bold.ttf
+#       italic: NotoSerif-Italic.ttf
+#       bold_italic: NotoSerif-BoldItalic.ttf
+#     JetBrainsMono:
+#       normal: JetBrainsMono-Regular.ttf
+#       bold: JetBrainsMono-Bold.ttf
+#       italic: JetBrainsMono-Italic.ttf
+#       bold_italic: JetBrainsMono-BoldItalic.ttf
+#   heading:
+#     font-family: NotoSerif
+#     font-style: bold
+#   body: 
+#     font-family: NotoSerif
+#     font-style: normal
+#   code: 
+#     font-family: JetBrainsMono
+#     font-style: normal
+#   size: 10
+#   size_large: 12
+
+base:
+  align: justify
+  text-align: justify
+  font-color: #222222
+  line-height: 1.6
+  margin: [0.5in, 0.75in, 0.5in, 0.75in]
+
+heading:
+  font-color: #111111
+  font-style: bold
+  align: left
+  line-height: 1.2
+
+title-page:
+  background-color: #ffffff
+  title:
+    top: 30%
+    font-color: #cc0000
+    font-size: 28
+  subtitle:
+    font-size: 16
+    font-color: #666666
+  author:
+    font-size: 12
+    font-color: #444444
+
+chapter:
+  title:
+    font-size: 22
+    font-color: #cc0000
+    margin-top: 0.8in
+    margin-bottom: 0.2in
+
+section:
+  title:
+    font-size: 14
+    font-color: #000000
+    margin-top: 0.4in
+    font-style: bold
+
+codespan:
+  background-color: #f7f7f7
+  border-color: #cccccc
+  border-radius: 3
+  padding: [6, 8, 6, 8]
+
+sidebar:
+  background-color: #fdf6e3
+  border-color: #cccccc
+  padding: [6, 6, 6, 6]
+  font-size: 9
+
+quote:
+  font-color: #555555
+  border-color: #aaaaaa
+  font-style: italic
+
+link:
+  font-color: #cc0000

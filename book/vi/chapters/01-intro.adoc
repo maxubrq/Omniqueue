@@ -1,0 +1,17 @@
+= Introduction
+
+OmniQueue is a unified messaging abstraction that allows sending and receiving messages across different brokers — such as RabbitMQ, Kafka, NATS, and brokerless transports — using a consistent API.
+
+[NOTE]
+====
+This book is designed for engineers building resilient distributed systems.
+====
+
+== Truyền Cảm Hứng
+
+Why another messaging library?
+
+* Every broker has quirks
+* Interoperability is painful
+* Configuring queues is boilerplate-heavy
+
