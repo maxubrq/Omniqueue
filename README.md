@@ -1,6 +1,6 @@
 <!-- OmniQueue README • v0.2.x -->
 <p align="center">
-  <img src="https://dummyimage.com/400x120/000/fff&text=OmniQueue" alt="OmniQueue logo" />
+  <img src="./omniqueue_logo.png" alt="OmniQueue logo" />
 </p>
 
 > **One API – every queue.**  
