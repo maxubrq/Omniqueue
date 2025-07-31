@@ -10,7 +10,14 @@ export default defineConfig({
         },
         outDir: "dist",
         emptyOutDir: true,
-        target: "es2022"
+        target: "es2022",
+        rollupOptions: {
+            external: [
+                "amqplib",
+                "@types/amqplib",
+                "@omniqueue/core",
+            ],
+        }
     },
-    plugins: [dts({ insertTypesEntry: true })]
+    plugins: [dts({ insertTypesEntry: true })],
 });
