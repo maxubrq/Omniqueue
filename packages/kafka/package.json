@@ -29,7 +29,8 @@
   },
   "peerDependencies": {
     "@omniqueue/core": "workspace:*",
-    "typescript": ">=5.0.0"
+    "typescript": ">=5.0.0",
+    "node-rdkafka": "^3.4.1"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -41,7 +42,6 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "node-rdkafka": "^3.4.1",
     "ulid": "^3.0.1"
   }
 }

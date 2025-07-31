@@ -5,7 +5,7 @@ export default defineConfig({
     build: {
         lib: {
             entry: "src/index.ts",
-            name: "OmniQueueCore",
+            name: "OmniQueueRabbitMQ",
             formats: ["es", "cjs"]
         },
         outDir: "dist",
