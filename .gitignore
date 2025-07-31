@@ -1,0 +1,10 @@
+.turbo
+node_modules
+dist
+coverage
+.vscode
+.DS_Store
+.env
+.env.local
+.env.development.local
+pnpm-lock.yaml
