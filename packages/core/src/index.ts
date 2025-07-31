@@ -1,5 +1,5 @@
 /* ================================================================
- * OmniQueue - Core contracts & runtime (vNext: grouping + generic ensure)
+ * OmniQueue - Core contracts & runtime (vNext: **group is mandatory**)
  * ============================================================== */
 
 /**
@@ -45,13 +45,13 @@ export type SendOptions = {
  * ---------------------------------------------------------------- */
 export interface ConsumeOptions extends SendOptions {
    /**
-    * Logical consumer‑group id.
-    * • **P2P (send/receive)** – only one member of the same `group` processes each msg.
-    * • **Fan‑out (publish/subscribe)** – every group gets a copy; inside each group only
-    *   one member processes it.
-    * Omit for a private, auto‑named queue.
+    * **Required** logical consumer‑group id.
+    * Acts as the *unit of work‑sharing*:
+    * • **P2P (send/receive)** – only one member of the same `group` processes each message.
+    * • **Fan‑out (publish/subscribe)** – every group receives a copy; within each group exactly
+    *   one consumer handles the message.
     */
-   group?: string;
+   group: string;
 }
 
 /* ------------------------------------------------------------------
@@ -74,7 +74,7 @@ export interface Broker<
    receive(
       queue: string,
       handler: (m: BrokerMessage) => Promise<void>,
-      opts?: TConsume,
+      opts: TConsume,
    ): Promise<void>;
 
    /* -------------- fan‑out ------------- */
@@ -87,7 +87,7 @@ export interface Broker<
    subscribe(
       topic: string,
       handler: (m: BrokerMessage) => Promise<void>,
-      opts?: TConsume,
+      opts: TConsume,
    ): Promise<void>;
 
    /* -------- lifecycle / teardown ------ */
@@ -97,18 +97,18 @@ export interface Broker<
 /* ================================================================
  * Plugin registry – adapters call register("rabbitmq", factory)
  * ============================================================== */
-export type BrokerFactory = (cfg: any) => Promise<Broker>;
+export type BrokerFactory = (cfg: unknown) => Promise<Broker>;
 
 const REGISTRY: Map<string, BrokerFactory> = new Map();
 
 export function register(provider: string, factory: BrokerFactory): void {
    if (REGISTRY.has(provider)) {
-      throw new Error(`Broker "${provider}" already registered`);
+      throw new Error(`Broker \"${provider}\" already registered`);
    }
    REGISTRY.set(provider, factory);
 }
 
-export async function create<T = any>(
+export async function create<T = unknown>(
    provider: string,
    cfg: T,
 ): Promise<Broker> {
@@ -116,7 +116,7 @@ export async function create<T = any>(
    if (!factory) {
       const known = [...REGISTRY.keys()].join(', ');
       throw new Error(
-         `Broker "${provider}" not registered. Known: [${known || '–'}]`,
+         `Broker \"${provider}\" not registered. Known: [${known || '–'}]`,
       );
    }
    return factory(cfg);
