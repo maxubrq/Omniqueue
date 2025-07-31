@@ -20,7 +20,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build",
+    "build": "tsc && vite build",
     "typecheck": "tsc -b",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src/**/*.ts"

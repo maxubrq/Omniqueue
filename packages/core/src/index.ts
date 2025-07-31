@@ -2,15 +2,15 @@
  * OmniQueue - Core contracts & runtime
  * ============================================================== */
 
-/**
+  /**
  * BrokerMessage interface defines the structure of messages
  * that are sent and received through the message broker.
- * 
- * It includes:
- * - `id`: A unique identifier for the message, ideally a ULID.
- * - `body`: The payload of the message, which should be JSON-serializable.
- * - `headers`: An object containing arbitrary headers or attributes associated with the message.
- * - `ack()`: A method to acknowledge the message positively, indicating successful processing.
+ *
+ * It includes                : 
+ * - `id`                     : A unique identifier for the message,            ideally a ULID.
+ * - `body`                   : The payload of the message,                     which should be JSON-serializable.
+ * - `headers`                : An object containing arbitrary headers or attributes associated with the message.
+ * - `ack()`                  : A method to acknowledge the message positively, indicating successful processing.
  * - `nack(requeue?: boolean)`: A method to negatively acknowledge the message,
  *   which can optionally requeue the message for retrying later.
  */
@@ -29,40 +29,85 @@ export interface BrokerMessage<T = any> {
 }
 
 /**
+ * SendOptions interface defines options for sending messages
+ * through the message broker.
+ *
+ * It includes    :
+ * - `prio`       : An optional priority for the message, which can influence its delivery order. (default: 0)
+ * - `ensureQueue`: An optional flag to ensure that the queue exists before sending the message
+ *                   (default: false). If true, the broker should create the queue if it does not exist.
+ * - `createQueueOptions`: Optional options for creating the queue if it does not exist.
+ *                        This is useful for ensuring that the queue is ready to receive messages.
+ *                        (default: undefined).
+ *                        It can include properties like `durable`, `exclusive`, `autoDelete`, and `arguments`.
+ */
+export type SendOptions = {
+   /**
+    * Optional priority for the message.
+    * Higher values indicate higher priority.
+    * @default 0
+    */
+   prio?: number;
+   /**
+    * Optional flag to ensure that the queue exists before sending the message.
+    * If true, the broker should create the queue if it does not exist.
+    * @default false
+    */
+   ensureQueue?: boolean;
+   /**
+    * In case the queue does not exist, the broker should create it
+    * with the specified options.
+    * This is useful for ensuring that the queue is ready to receive messages.
+    * @default undefined
+    */
+   createQueueOptions?: {
+      durable?: boolean; // Whether the queue should survive broker restarts
+      exclusive?: boolean; // Whether the queue is exclusive to the connection
+      autoDelete?: boolean; // Whether the queue should be deleted when no longer in use
+      arguments?: Record<string, any>; // Additional arguments for queue creation
+   }
+};
+
+/**
  * Broker interface defines the contract for a message broker
  * that supports point-to-point and fan-out messaging patterns.
- * 
+ *
  * It includes methods for sending and receiving messages,
  * as well as publishing and subscribing to topics.
+ * 
+ * It also includes a method for closing the broker connection.
  */
-export interface Broker {
+export interface Broker<T extends SendOptions = SendOptions> {
    /** Provider key (e.g. "rabbitmq") */
    readonly provider: string;
+
+   /** Initialize the broker connection */
+   init(): Promise<void>;
 
    /* ---------- point-to-point ---------- */
    send(
       queue: string,
       msg: Omit<BrokerMessage, 'ack' | 'nack'>,
-      opts?: { prio?: number },
+      opts?: T,
    ): Promise<void>;
 
    receive(
       queue: string,
       handler: (m: BrokerMessage) => Promise<void>,
-      opts?: { prio?: number },
+      opts?: T,
    ): Promise<void>;
 
    /* -------------- fan-out ------------- */
    publish(
       topic: string,
       msg: Omit<BrokerMessage, 'ack' | 'nack'>,
-      opts?: { prio?: number },
+      opts?: T,
    ): Promise<void>;
 
    subscribe(
       topic: string,
       handler: (m: BrokerMessage) => Promise<void>,
-      opts?: { prio?: number },
+      opts?: T,
    ): Promise<void>;
 
    /* -------- lifecycle / teardown ------ */
@@ -76,7 +121,7 @@ export interface Broker {
 /**
  * BrokerFactory is a type that represents a factory function
  */
-type BrokerFactory = (cfg: unknown) => Promise<Broker>;
+type BrokerFactory = (cfg: any) => Promise<Broker>;
 
 /**
  * Registry of broker factories.
