@@ -15,6 +15,7 @@ import {
     ConsumeMessage,
     Options
 } from "amqplib";
+import { ulid } from 'ulid';
 
 
 /**
@@ -79,7 +80,7 @@ export class RabbitBroker implements Broker {
             queue,
             Buffer.from(JSON.stringify(msg.body)),
             {
-                messageId: msg.id,
+                messageId: msg.id ?? ulid(),
                 priority: opts.prio,
                 headers: msg.headers,
             },
@@ -157,7 +158,7 @@ export class RabbitBroker implements Broker {
 
         await this.channel.consume(q.queue, async (raw: ConsumeMessage | null) => {
             if (!raw) return;
-            
+
             const brokerMsg: BrokerMessage = {
                 id: raw.properties.messageId || raw.fields.deliveryTag.toString(),
                 body: JSON.parse(raw.content.toString()),
