@@ -97,7 +97,7 @@ export interface Broker<
 /* ================================================================
  * Plugin registry – adapters call register("rabbitmq", factory)
  * ============================================================== */
-export type BrokerFactory = (cfg: unknown) => Promise<Broker>;
+export type BrokerFactory = (cfg: any) => Promise<Broker>;
 
 const REGISTRY: Map<string, BrokerFactory> = new Map();
 
@@ -108,7 +108,7 @@ export function register(provider: string, factory: BrokerFactory): void {
    REGISTRY.set(provider, factory);
 }
 
-export async function create<T = unknown>(
+export async function create<T = any>(
    provider: string,
    cfg: T,
 ): Promise<Broker> {
