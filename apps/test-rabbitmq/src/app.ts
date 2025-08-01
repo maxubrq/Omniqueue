@@ -3,13 +3,13 @@ import { create, Broker } from '@omniqueue/core';
 import { RabbitConfig } from "@omniqueue/rabbitmq";
 
 async function produce(broker: Broker) {
-    const queueToSend = process.env.QUEUE_TO_SEND || 'test-queue';
+    const topicToSend = process.env.TOPIC_TO_SEND || 'test-topic';
     let index = 0;
     while (true) {
-        console.log(`Producing message to queue: ${queueToSend}`);
-        // Ensure the queue exists before sending a message
-        await broker.send(queueToSend, {
-            id: 'test-message',
+        console.log(`Producing message to topic: ${topicToSend}`);
+        // Ensure the topic exists before sending a message
+        await broker.publish(topicToSend, {
+            id: `test-message-${index}`,
             body: JSON.stringify({
                 index: index,
                 timestamp: new Date().toISOString(),
@@ -23,12 +23,14 @@ async function produce(broker: Broker) {
 }
 
 async function consume(broker: Broker) {
-    const queueToConsume = process.env.QUEUE_TO_CONSUME || 'test-queue';
-    await broker.receive(queueToConsume, async (message) => {
-        console.log(`Received message: ${JSON.stringify(message.body)}`);
+    const topicToConsume = process.env.TOPIC_TO_CONSUME || 'test-topic';
+    const groupId = process.env.GROUP_ID || 'test-group';
+    const consumerId = process.env.CONSUMER_ID || 'test-consumer';
+    await broker.subscribe(topicToConsume, async (message) => {
+        console.log(`Received message: ${JSON.stringify(message.body)} -- group ID: ${groupId} -- consumer ID: ${consumerId}`);
         // Process the message here
         await message.ack();
-    }, { group: 'test-group', ensure: true });
+    }, groupId, { ensure: true });
 }
 
 async function sleep(ms: number) {

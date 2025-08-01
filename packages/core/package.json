@@ -1,6 +1,6 @@
 {
   "name": "@omniqueue/core",
-  "version": "0.23.0",
+  "version": "1.0.0",
   "description": "One API – Every Queue (core contracts & runtime)",
   "license": "MIT",
   "type": "module",

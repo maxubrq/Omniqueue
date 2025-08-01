@@ -54,11 +54,11 @@ const cfg = provider === "kafka"
   : { url: "amqp://localhost" };
 
 const mq = await create(provider, cfg);
-await mq.send("tasks", { id: "1", body: { hello: provider }, headers: {} });
-await mq.receive("tasks", async msg => {
+await mq.publish("tasks", { id: "1", body: { hello: provider }, headers: {} });
+await mq.subscribe("tasks", async msg => {
   console.log(msg.body);
   await msg.ack();
-});
+}, "group1", {});
 ```
 
 ---
@@ -76,10 +76,8 @@ export interface BrokerMessage<T = any> {
 
 export interface Broker {
   readonly provider: string;
-  send(queue: string, msg: Omit<BrokerMessage, "ack"|"nack">, opts?: { prio?:number }): Promise<void>;
-  receive(queue: string, handler: (m: BrokerMessage) => Promise<void>, opts?: { prio?:number }): Promise<void>;
   publish(topic: string, msg: Omit<BrokerMessage, "ack"|"nack">, opts?: { prio?:number }): Promise<void>;
-  subscribe(topic: string, handler: (m: BrokerMessage) => Promise<void>, opts?: { prio?:number }): Promise<void>;
+  subscribe(topic: string, handler: (m: BrokerMessage) => Promise<void>, groupId: string, opts?: { prio?:number }): Promise<void>;
   close(): Promise<void>;
 }
 ```

@@ -43,16 +43,7 @@ export type SendOptions = {
 /* ------------------------------------------------------------------
  * Consumer‑side options (receive / subscribe)
  * ---------------------------------------------------------------- */
-export interface ConsumeOptions extends SendOptions {
-   /**
-    * **Required** logical consumer‑group id.
-    * Acts as the *unit of work‑sharing*:
-    * • **P2P (send/receive)** – only one member of the same `group` processes each message.
-    * • **Fan‑out (publish/subscribe)** – every group receives a copy; within each group exactly
-    *   one consumer handles the message.
-    */
-   group: string;
-}
+export interface ConsumeOptions extends SendOptions {}
 
 /* ------------------------------------------------------------------
  * Broker contract
@@ -81,70 +72,11 @@ export interface Broker<
     */
    init(): Promise<void>;
 
-   /* ---------- point‑to‑point ---------- */
-   /**
-    * Send a message to a queue.
-    * @param queue - The target queue name.
-    * @param msg - The message to send, excluding `ack` and `nack` methods.
-    * @param opts - Optional send options, such as priority and destination creation.
-    * @returns A promise that resolves when the message is sent.
-    * @throws Error if the queue does not exist and `ensure` is false.
-    * @throws Error if the broker is not connected or the message cannot be sent.
-    * @example
-    * ```ts
-    * await broker.send('my-queue', {
-    *   id: 'unique-id',
-    *   body: { key: 'value' },
-    *   headers: { 'x-custom-header': 'value' }
-    * });
-    * ```
-    */
-   send(
-      queue: string,
-      msg: Omit<BrokerMessage, 'ack' | 'nack'>,
-      opts?: TSend,
-   ): Promise<void>;
-
-   /**
-    * Receive messages from a queue.
-    * This method sets up a consumer that listens for messages on the specified queue.
-    * It processes each message using the provided handler function.
-    * 
-    * Consumer will join the specified group, allowing for work‑sharing
-    * among multiple consumers in the same group.
-    * 
-    * @param queue - The name of the queue to consume messages from.
-    * @param handler - A function that processes each received message.
-    * It receives a `BrokerMessage` object and should return a promise that resolves when the
-    * message has been processed.
-    * The handler should call `ack()` or `nack()` on the message to indicate
-    * whether it was processed successfully or not.
-    * @param opts - Options for consuming messages, including the consumer group.
-    * The `group` option is mandatory and specifies the consumer group to join.
-    * @returns A promise that resolves when the consumer is successfully set up.
-    * @throws Error if the queue does not exist and `ensure` is false.
-    * @throws Error if the broker is not connected or the consumer cannot be set up.
-    * @example
-    * ```ts
-    * await broker.receive('my-queue', async (msg) => {
-    *   console.log('Received message:', msg.body);
-    *   // Process the message...
-    *   await msg.ack(); // Acknowledge the message
-    * }, {group: 'my-consumer-group', ensure: true});
-    * ```
-    */
-   receive(
-      queue: string,
-      handler: (m: BrokerMessage) => Promise<void>,
-      opts: TConsume,
-   ): Promise<void>;
-
-   /* -------------- fan‑out ------------- */
    /**
     * Publish a message to a topic.
     * This method sends a message to a topic, which can be consumed by multiple subscribers/groups.
     * The message is sent with the specified options, such as priority and destination creation.
-    * 
+    *
     * @param topic - The target topic name.
     * @param msg - The message to publish, excluding `ack` and `nack` methods.
     * @param opts - Optional send options, such as priority and destination creation.
@@ -170,20 +102,21 @@ export interface Broker<
     * Subcribe to a topic.
     * This method sets up a consumer that listens for messages on the specified topic.
     * It processes each message using the provided handler function.
-    * 
+    *
     * Consumer will join the specified group, allowing for work‑sharing
     * among multiple consumers in the same group.
-    * 
+    *
     * When a message is sent to the topic, all the groups subscribed to that topic
     * will receive a copy of the message, and within each group, only one consumer
     * will handle the message.
-    * 
+    *
     * @param topic - The name of the topic to subscribe to.
-    * @param handler - A function that processes each received message. 
+    * @param handler - A function that processes each received message.
     * It receives a `BrokerMessage` object and should return a promise that resolves when the
     * message has been processed.
     * The handler should call `ack()` or `nack()` on the message to indicate
     * whether it was processed successfully or not.
+    * @param groupId - The unique identifier for the consumer group.
     * @param opts - Options for consuming messages, including the consumer group.
     * The `group` option is mandatory and specifies the consumer group to join.
     * @returns A promise that resolves when the consumer is successfully set up.
@@ -201,6 +134,7 @@ export interface Broker<
    subscribe(
       topic: string,
       handler: (m: BrokerMessage) => Promise<void>,
+      groupId: string,
       opts: TConsume,
    ): Promise<void>;
 
@@ -222,7 +156,7 @@ const REGISTRY: Map<string, BrokerFactory> = new Map();
 
 /**
  * register a broker factory.
- * 
+ *
  * This function allows you to register a broker factory
  * with a specific provider key. The factory is a function that
  * creates a broker instance when called with a configuration object.

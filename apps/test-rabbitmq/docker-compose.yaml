@@ -8,7 +8,7 @@ services:
       - rabbitmq
     environment:
       RABBITMQ_URL: amqp://user:password@rabbitmq:5672
-  consumer:
+  consumer1:
     build:
       context: .
       dockerfile: Dockerfile
@@ -17,6 +17,30 @@ services:
       - rabbitmq
     environment:
       RABBITMQ_URL: amqp://user:password@rabbitmq:5672
+      GROUP_ID: "group1"
+      CONSUMER_ID: "consumer1"
+  consumer2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["node", "dist/app.js", "consume"]
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://user:password@rabbitmq:5672
+      GROUP_ID: "group1"
+      CONSUMER_ID: "consumer2"
+  consumer3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["node", "dist/app.js", "consume"]
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_URL: amqp://user:password@rabbitmq:5672
+      GROUP_ID: "group2"
+      CONSUMER_ID: "consumer3"
   rabbitmq:
     image: rabbitmq:latest
     ports:
