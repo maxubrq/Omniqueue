@@ -11,7 +11,7 @@ export default defineConfig({
         },
         outDir: "dist",
         emptyOutDir: true,
-        target: "es2022"
+        target: "node18"
     },
     plugins: [dts({ insertTypesEntry: true })]
 });
