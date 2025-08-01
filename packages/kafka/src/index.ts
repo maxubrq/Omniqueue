@@ -80,6 +80,23 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
    }
 
    /* ---------------- topic-creation helper -------------------------- */
+   /**
+    * Ensure a topic exists with the given name and options.
+    * If the topic already exists, this is a no-op.
+    * If the topic does not exist, it will be created with the specified
+    * number of partitions and replication factor.
+    * If the topic creation fails with an error other than "topic already exists",
+    * the promise will be rejected with that error.
+    * 
+    * For this to work, the Kafka user must have the necessary permissions
+    * to create topics.
+    * 
+    * Typically: `topic.creation.enable` and `auto.create.topics.enable` configuration should be set to true
+    * in the Kafka broker configuration.
+    * 
+    * @see: [auto.create.topics.enable](https://kafka.apache.org/documentation/#brokerconfigs_auto.create.topics.enable)
+    * @see: [topic.creation.enable](https://kafka.apache.org/documentation/#connectconfigs_topic.creation.enable)
+    */
    private async ensureTopic(
       topic: string,
       opts: Record<string, any> | undefined,
@@ -110,7 +127,7 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
          );
       });
    }
-   
+
    /* --------------- fan-out (same publish semantics) --------------- */
    async publish(
       topic: string,
@@ -119,16 +136,22 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
    ): Promise<void> {
       if (opts.ensure) await this.ensureTopic(topic, opts.createOptions);
 
-      await new Promise<void>((res, rej) => {
-         this.producer.produce(
-            topic,
-            prioToPartition(opts.prio),
-            Buffer.from(JSON.stringify(msg.body)),
-            msg.id, // key → stick to same partition on retries
-            Date.now(),
-            undefined,
-            opts.headers ?? [],
-         );
+      await new Promise<void>(async (res, rej) => {
+         try {
+            await this.producer.produce(
+               topic,
+               prioToPartition(opts.prio),
+               Buffer.from(JSON.stringify(msg.body)),
+               msg.id, // key → stick to same partition on retries
+               Date.now(),
+               undefined,
+               opts.headers ?? [],
+            );
+            res();
+         } catch (err) {
+            rej(err);
+            return;
+         }
       });
    }
 
