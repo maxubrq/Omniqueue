@@ -1,17 +1,17 @@
 {
   "name": "@omniqueue/core",
-  "version": "0.18.0",
+  "version": "0.21.0",
   "description": "One API – Every Queue (core contracts & runtime)",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.es.js",
+  "main": "./dist/index.cjs.js",
   "module": "./dist/index.es.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.es.js",
-      "require": "./dist/index.es.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs.js",
+      "types": "./dist/types/index.d.ts"
     }
   },
   "engines": {

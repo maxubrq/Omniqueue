@@ -6,7 +6,7 @@ export default defineConfig({
         lib: {
             entry: "./src/index.ts",
             name: "OmniQueueKafka",
-            formats: ["es", "cjs"],
+            formats: ["es", "cjs", "umd"],
             fileName: (format) => `index.${format}.js`
         },
         outDir: "dist",
@@ -21,5 +21,5 @@ export default defineConfig({
             ],
         },
     },
-    plugins: [dts({ insertTypesEntry: true })]
+    plugins: [dts({ insertTypesEntry: true, outDir: "dist/types" })],
 });

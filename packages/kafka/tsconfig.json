@@ -6,15 +6,7 @@
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,
+    "declarationDir": "./dist/types",
   },
-  "exclude": [
-    "dist",
-    "node_modules",
-    "src/__tests__",
-    "src/__mocks__",
-    "src/__fixtures__",
-    "vite.config.ts",
-    "vite.config.js",
-    "vitest.config.ts"
-  ],
+  "include": ["src"]
 }

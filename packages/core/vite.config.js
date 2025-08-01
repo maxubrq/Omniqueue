@@ -13,5 +13,5 @@ export default defineConfig({
         emptyOutDir: true,
         target: "node18"
     },
-    plugins: [dts({ insertTypesEntry: true })]
+    plugins: [dts({ insertTypesEntry: true, outDir: "dist/types" })],
 });
