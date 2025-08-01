@@ -1,6 +1,6 @@
 {
   "name": "@omniqueue/kafka",
-  "version": "0.21.0",
+  "version": "0.23.0",
   "description": "One API – Every Queue (kafka)",
   "license": "MIT",
   "type": "module",
@@ -29,7 +29,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "peerDependencies": {
-    "@omniqueue/core": "^0.19.0",
+    "@omniqueue/core": "^0.23.0",
     "node-rdkafka": "^3.4.1"
   },
   "peerDependenciesMeta": {

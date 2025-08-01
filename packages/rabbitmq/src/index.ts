@@ -41,18 +41,26 @@ const defaultQueueOpts: Options.AssertQueue = {
 // Resolve queue name based on logical group
 const groupQueue = (base: string, group: string) => `${base}.${group}`;
 
+function directName(base: string) {
+   return `${base}_direct`;
+}
+
+function fanoutName(base: string) {
+   return `${base}_fanout`;
+}
+
 // ──────────────────────────────────────────────────────────────────────
 // Adapter implementation
 // ──────────────────────────────────────────────────────────────────────
 export class RabbitBroker implements Broker<SendOptions, ConsumeOptions> {
    readonly provider = 'rabbitmq' as const;
    readonly config: any;
-   
+
    private conn!: ChannelModel;
    private channel!: Channel;
 
    constructor(private cfg: RabbitConfig) {
-        this.config = cfg;
+      this.config = cfg;
    }
 
    async init() {
@@ -72,15 +80,24 @@ export class RabbitBroker implements Broker<SendOptions, ConsumeOptions> {
       msg: Omit<BrokerMessage, 'ack' | 'nack'>,
       opts: SendOptions = {},
    ): Promise<void> {
+      const directQueueName = directName(queue);
+
       if (opts.ensure) {
-         await this.channel.assertQueue(queue, {
+         await this.channel.assertExchange(directQueueName, 'direct', {
+            durable: true,
+         });
+
+         await this.channel.assertQueue(directQueueName, {
             ...defaultQueueOpts,
             ...opts.createOptions,
          });
+
+         await this.channel.bindQueue(directQueueName, directQueueName, '');
       }
 
-      const ok = this.channel.sendToQueue(
-         queue,
+      const ok = this.channel.publish(
+         directQueueName,
+         '',
          Buffer.from(JSON.stringify(msg.body)),
          {
             messageId: msg.id,
@@ -88,6 +105,7 @@ export class RabbitBroker implements Broker<SendOptions, ConsumeOptions> {
             headers: msg.headers,
          },
       );
+
       if (!ok) await new Promise((r) => this.channel.once('drain', r));
    }
 
@@ -96,17 +114,38 @@ export class RabbitBroker implements Broker<SendOptions, ConsumeOptions> {
       handler: (m: BrokerMessage) => Promise<void>,
       opts: ConsumeOptions,
    ): Promise<void> {
-      const queueName = groupQueue(queue, opts.group);
+      const directQueueName = directName(queue);
+      const groupName = groupQueue(queue, opts.group);
+      const directGroupName = directName(groupName);
 
       if (opts.ensure) {
-         await this.channel.assertQueue(queueName, {
+         // Ensure the exchange exists
+         await this.channel.assertExchange(directQueueName, 'direct', {
+            durable: true,
+         });
+
+         await this.channel.assertExchange(directGroupName, 'direct', {
+            durable: true,
+         });
+
+         await this.channel.bindExchange(
+            directGroupName,
+            directQueueName,
+            '',
+         );
+
+         // Ensure the queue exists
+         await this.channel.assertQueue(directGroupName, {
             ...defaultQueueOpts,
             ...opts.createOptions,
          });
+
+         // Bind the queue to the exchange
+         await this.channel.bindQueue(directGroupName, directGroupName, '');
       }
 
       await this.channel.consume(
-         queueName,
+         directGroupName,
          async (raw: ConsumeMessage | null) => {
             if (!raw) return; // consumer cancelled
             const brokerMsg: BrokerMessage = {
