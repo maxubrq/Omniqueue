@@ -110,18 +110,18 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
          );
       });
    }
-
-   /* ---------------- point-to-point ------------------------------- */
-   async send(
-      queue: string,
+   
+   /* --------------- fan-out (same publish semantics) --------------- */
+   async publish(
+      topic: string,
       msg: Omit<BrokerMessage, 'ack' | 'nack'>,
       opts: KafkaSendOptions = {},
    ): Promise<void> {
-      if (opts.ensure) await this.ensureTopic(queue, opts.createOptions);
+      if (opts.ensure) await this.ensureTopic(topic, opts.createOptions);
 
       await new Promise<void>((res, rej) => {
          this.producer.produce(
-            queue,
+            topic,
             prioToPartition(opts.prio),
             Buffer.from(JSON.stringify(msg.body)),
             msg.id, // key → stick to same partition on retries
@@ -132,21 +132,20 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
       });
    }
 
-   async receive(
-      queue: string,
+   async subscribe(
+      topic: string,
       handler: (m: BrokerMessage) => Promise<void>,
+      groupId: string,
       opts: ConsumeOptions,
    ): Promise<void> {
-      if (!opts?.group)
-         throw new Error('`group` is mandatory in ConsumeOptions');
-      if (opts.ensure) await this.ensureTopic(queue, opts.createOptions);
+      if (opts.ensure) await this.ensureTopic(topic, opts.createOptions);
 
       const consumer: KafkaConsumer = new Kafka.KafkaConsumer(
          {
             'bootstrap.servers': Array.isArray(this.cfg.brokers)
                ? this.cfg.brokers.join(',')
                : this.cfg.brokers,
-            'group.id': opts.group,
+            'group.id': groupId,
             'enable.auto.commit': false,
             ...this.cfg.consumerConfig,
          },
@@ -157,7 +156,7 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
          consumer.connect({}, (err: any) => (err ? rej(err) : res()));
       });
 
-      consumer.subscribe([queue]);
+      consumer.subscribe([topic]);
       consumer.consume();
 
       consumer.on('data', async (raw: Message) => {
@@ -179,23 +178,6 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
             await brokerMsg.nack();
          }
       });
-   }
-
-   /* --------------- fan-out (same publish semantics) --------------- */
-   async publish(
-      topic: string,
-      msg: Omit<BrokerMessage, 'ack' | 'nack'>,
-      opts: KafkaSendOptions = {},
-   ): Promise<void> {
-      await this.send(topic, msg, opts); // fan-out happens via groups
-   }
-
-   async subscribe(
-      topic: string,
-      handler: (m: BrokerMessage) => Promise<void>,
-      opts: ConsumeOptions,
-   ): Promise<void> {
-      await this.receive(topic, handler, opts);
    }
 
    /* ------------- lifecycle / teardown ---------------------------- */
