@@ -5,7 +5,7 @@ export default defineConfig({
     build: {
         lib: {
             entry: "./src/index.ts",
-            name: "OmniQueueAWSSQS",
+            name: "OmniQueueAWSSQSSNS",
             formats: ["es", "cjs", "umd"],
             fileName: (format) => `index.${format}.js`
         },
