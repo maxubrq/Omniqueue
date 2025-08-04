@@ -6,21 +6,19 @@
 import {
    Broker,
    BrokerMessage,
-   SendOptions,
    ConsumeOptions,
    register,
+   SendOptions,
 } from '@omniqueue/core';
 import Pulsar, {
    Client,
-   Producer,
-   Consumer,
-   Message,
    ClientConfig,
-   ProducerConfig,
+   Consumer,
    ConsumerConfig,
-   SubscriptionType,
+   Message,
+   Producer,
+   ProducerConfig
 } from 'pulsar-client';
-import { ulid } from 'ulid';
 
 /* ────────────────────────────────────────────────────────────────
  * Config
@@ -39,7 +37,8 @@ export interface PulsarConfig {
 /* ────────────────────────────────────────────────────────────────
  * Adapter implementation
  * ────────────────────────────────────────────────────────────────*/
-export class PulsarBroker implements Broker<SendOptions, ConsumeOptions> {
+export class PulsarBroker
+   implements Broker<SendOptions, ConsumeOptions> {
    readonly provider = 'pulsar' as const;
    readonly config: any;
 
@@ -47,9 +46,7 @@ export class PulsarBroker implements Broker<SendOptions, ConsumeOptions> {
    private producers = new Map<string, Producer>();
    private consumers: Consumer[] = [];
 
-   constructor(private cfg: PulsarConfig) {
-      this.config = cfg;
-   }
+   constructor(private cfg: PulsarConfig) { this.config = cfg; }
 
    /* ---------------- init -------------------------------------- */
    async init() {
@@ -94,7 +91,7 @@ export class PulsarBroker implements Broker<SendOptions, ConsumeOptions> {
       const consumer = await this.client.subscribe({
          topic,
          subscription: groupId,
-         subscriptionType: 'Shared', // work-sharing inside group
+         subscriptionType: "Shared",   // work-sharing inside group
          receiverQueueSize: this.cfg.receiverQueueSize ?? 100,
       } as ConsumerConfig);
 
@@ -108,9 +105,7 @@ export class PulsarBroker implements Broker<SendOptions, ConsumeOptions> {
                id: raw.getProperties()['id'] ?? raw.getMessageId().toString(),
                body: payload,
                headers: raw.getProperties(),
-               ack: async () => {
-                  consumer.acknowledge(raw);
-               },
+               ack: async () => { consumer.acknowledge(raw) },
                nack: async () => consumer.negativeAcknowledge(raw),
             };
 
