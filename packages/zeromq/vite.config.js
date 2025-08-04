@@ -5,7 +5,7 @@ export default defineConfig({
     build: {
         lib: {
             entry: "./src/index.ts",
-            name: "OmniQueueNATS",
+            name: "OmniQueueZeroMQ",
             formats: ["es", "cjs", "umd"],
             fileName: (format) => `index.${format}.js`
         },
@@ -14,7 +14,7 @@ export default defineConfig({
         target: "es2022",
         rollupOptions: {
             external: [
-                "nats",
+                "zeromq",
                 "@omniqueue/core",
             ],
         }
