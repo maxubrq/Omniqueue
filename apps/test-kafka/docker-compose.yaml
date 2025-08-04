@@ -1,0 +1,83 @@
+services:
+  kafka:
+    image: apache/kafka:4.0.1-rc0
+    container_name: kafka
+    ports:
+      - "9092:9092"  # client/broker port
+      - "9093:9093"  # controller quorum port
+    environment:
+      # ————————————— KRaft setup —————————————
+      KAFKA_PROCESS_ROLES: "broker,controller"  
+      KAFKA_NODE_ID: "1"  
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"  # single-node controller quorum :contentReference[oaicite:0]{index=0}
+      # ———————————— Listeners & Advertising ————————————
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"  # bind both roles :contentReference[oaicite:1]{index=1}
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"                  # clients inside network use kafka:9092 :contentReference[oaicite:2]{index=2}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"  # map protocols :contentReference[oaicite:3]{index=3}
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"     # inter-broker traffic on PLAINTEXT :contentReference[oaicite:4]{index=4}
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"     # which listener handles controller role :contentReference[oaicite:5]{index=5}
+      # —————————— Single-node replication ——————————
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"       # no replication errors :contentReference[oaicite:6]{index=6}
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+  producer:
+    image: test_kafka:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["node", "dist/app.js", "produce"]
+    depends_on:
+      - kafka
+    environment:
+      BROKERS: "kafka:9092"
+      APP_TYPE: 'produce' 
+
+  consumer1:
+    image: test_kafka:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["node", "dist/app.js", "consume"]
+    depends_on:
+      - kafka
+    environment:
+      BROKERS: "kafka:9092"
+      GROUP_ID: "group1"
+      CONSUMER_ID: "consumer1"
+      APP_TYPE: 'consume'
+
+  consumer2:
+    image: test_kafka:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["node", "dist/app.js", "consume"]
+    depends_on:
+      - kafka
+    environment:
+      BROKERS: "kafka:9092"
+      GROUP_ID: "group1"
+      CONSUMER_ID: "consumer2"
+      APP_TYPE: 'consume'
+
+  consumer3:
+    image: test_kafka:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["node", "dist/app.js", "consume"]
+    depends_on:
+      - kafka
+    environment:
+      BROKERS: "kafka:9092"
+      GROUP_ID: "group2"
+      CONSUMER_ID: "consumer3"
+      APP_TYPE: 'consume'
+
+volumes:
+  kafka_data:
+    driver: local

@@ -1,6 +1,6 @@
 {
   "name": "@omniqueue/kafka",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "One API – Every Queue (kafka)",
   "license": "MIT",
   "type": "module",

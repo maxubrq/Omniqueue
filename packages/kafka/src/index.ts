@@ -138,7 +138,7 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
 
       await new Promise<void>(async (res, rej) => {
          try {
-            await this.producer.produce(
+            this.producer.produce(
                topic,
                prioToPartition(opts.prio),
                Buffer.from(JSON.stringify(msg.body)),
@@ -175,12 +175,11 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
          {},
       );
 
-      await new Promise<void>((res, rej) => {
-         consumer.connect({}, (err: any) => (err ? rej(err) : res()));
+      consumer.connect();
+      consumer.on('ready', () => {
+         consumer.subscribe([topic]);
+         consumer.consume();
       });
-
-      consumer.subscribe([topic]);
-      consumer.consume();
 
       consumer.on('data', async (raw: Message) => {
          const brokerMsg: BrokerMessage = {
@@ -189,9 +188,11 @@ export class KafkaBroker implements Broker<KafkaSendOptions, ConsumeOptions> {
             headers: (raw.headers as any) ?? {},
             ack: async () => {
                await consumer.commit(raw);
+               /*consume new messages after acking */
             },
             nack: async () => {
                /* do nothing → redeliver */
+               /* Consume new messages after nack */
             },
          };
          try {

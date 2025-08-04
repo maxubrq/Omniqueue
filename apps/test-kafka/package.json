@@ -1,0 +1,23 @@
+{
+  "name": "test-kafka",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1",
+  "dependencies": {
+    "@omniqueue/core": "^1.0.0",
+    "@omniqueue/kafka": "^1.0.3",
+    "node-rdkafka": "^3.4.1",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.9"
+  }
+}
